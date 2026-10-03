@@ -2,27 +2,43 @@ const jwt = require ("jsonwebtoken");
 const userModel = require("../models/user-model");
 
 
-module.exports.isLoggedIn = async function(req,res,next){
-    //find token
-    if (!req.cookies.token){
-        res.clearCookie("token");
-        return res.redirect("/users/login");
-    }    
-    //If exist    
-    try{
-        //verification using jwt.verify
-        let decoded = jwt.verify(req.cookies.token,process.env.JWT_SECRET);
-        let user = await userModel
-        .findById(decoded.id)
-        .select("-password");
+module.exports.isLoggedIn = async function(req, res, next) {
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+            message: "Please login"
+        });
+    }
+
+    try {
+        const token = authHeader.split(" ")[1];
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        const user = await userModel
+            .findById(decoded.id)
+            .select("-password");
+
+        if (!user) {
+            return res.status(401).json({
+                message: "User not found"
+            });
+        }
 
         req.user = user;
+
         next();
-        
-    //if failed ("/")
-    }catch(err){
-        console.error("isLoggedIn error:",err);
-        res.status(401).send("Invalid or Expired Token. Please Login");
+
+    } catch (err) {
+        console.error("isLoggedIn error:", err);
+
+        res.status(401).json({
+            message: "Invalid or expired token"
+        });
     }
-            //else store user decoded into req.user
 };

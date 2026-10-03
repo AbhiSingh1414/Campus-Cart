@@ -5,7 +5,7 @@ function calculateCart(cart) {
     let totalPrice = 0;
 
     const cartItems = cart.map(item => {
-        // 🛡️ safety check
+        // safety check
         if (!item.product) return null;
 
         const discount = item.product.discount || 0;

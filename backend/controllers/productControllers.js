@@ -1,29 +1,32 @@
 const productModel = require("../models/product-model");
+const cloudinary = require('../config/cloudinary');
 
 //Create Product
 module.exports.createProduct = async function (req , res){
     try{
-        let {productname,price,discount,description } = req.body;
-        let image = req.file ? req.file.filename : "";
+        let {productname,price,discount,description,category,stock} = req.body;
+        let imageUrl = " ";
 
-        if (!productname || price == null) {
-            return res.send("Product name and price are required");
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            imageUrl = result.secure_url;
         }
-        
         let product = await productModel.create({
             productname,
-            seller : req.user._id ,
             price,
-            image,
             discount,
-            description
+            description,
+            category,
+            stock,
+            imageUrl,
+            
+            
         })
-        req.flash("success", "Product created successfully");
-        res.redirect("/products/shop");
+        const saveProduct = await product.save();
+        res.status(200).json({saveProduct});
     }
     catch(err){
-        console.error("createProduct error:",err);
-        res.status(500).send("Error creating product");
+        res.status(500).json({message : "Server error",err});
     }
 };
 
@@ -31,87 +34,74 @@ module.exports.createProduct = async function (req , res){
 module.exports.getProduct = async function (req , res){
     //find products
     try{
-        let products = await productModel
-        .find()
-        .populate("seller" ,"username");
+        let products = await productModel.find({})
         //send response
-        res.status(200).render("shop", { products });;
+        res.json (products);;
     }
     catch(err){
         console.error("getProduct error:",err);
-        res.status(500).send("Something went wrong");        
+        res.status(500).json({message : 'Server error'});        
     }
 };
 
-//Edit Product
-module.exports.editProduct = async (req, res) => {
-  try {
-    const product = await productModel.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).send("Product not found");
+//Get product by id 
+module.exports.getProductById = async (req ,res) => {
+    try {
+        const product = await productModel.findById(req.params.id)
+        if(product){
+            res.json(product);
+        }else{
+            res.json({message : 'Product not found'});
+        }
+    } catch (error) {
+        res.status(500).json({message : 'Server error'});
     }
-
-    // 🔥 Owner check
-    if (product.seller.toString() !== req.user.id) {
-      return res.status(403).send("Not authorized");
-    }
-
-    res.render('editProduct', { product });
-
-  } catch (err) {
-    res.status(500).send("Server Error");
-  }
-};
+}
 
 //Update Product
 module.exports.updateProduct = async (req,res) => {
-try{
-    const{productname , price ,discount , description} = req.body;
-    if(!productname || !price){
-        req.flash("error", "Product name and price are required");
-        return res.redirect(`/products/${req.params.id}/edit`);
-    }
 
-    const product = await  productModel.findById(req.params.id);
-        if(!product){
-        return res.status(404).send("Product not found");
-    }
-
-    if(product.seller.toString()!==req.user.id){
-        return res.status(403).send("Not authorized");
-    }
-
-    //Update Product
-    product.productname = productname;
-    product.price = price;
-    product.description = description;
-    product.discount = discount;
-    //Update Image if needed
-    if(req.file){
-        product.image = req.file.filename;
-    }
-
-    await product.save();
-
-    req.flash("success", "Product updated successfully");
-    res.redirect("/products/shop");
-}catch(err){
-    console.error("updateProduct error" ,err);
-    res.status(500).send("Server Error");
-}
-}
-
-//My Products
-module.exports.myProducts = async(req,res)=>{
     try{
-        const products = await productModel.find
-        ({seller: req.user._id})
-        .populate("seller","username");
-        res.render("myProducts",{products});
-        
+        const{productname , price ,discount , description, category , stock} = req.body;
+        const product = await  productModel.findById(req.params.id);
+        if(!product){
+             return res.status(404).json({message : "Product not found"});
+        }
+
+        //Update Product
+        product.productname = productname || product.productname;
+        product.price = price || product.price;
+        product.description = description || product.description;
+        product.discount = discount || product.discount;
+        product.stock = stock || product.stock;
+        product.category = category || product.category;
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path);
+            product.imageUrl = result.secure_url;
+        }
+
+        const updatedProduct = await product.save();
+        res.json(updatedProduct);
+
     }catch(err){
-        console.error("myProduct error" , err);
-        res.status(500).send("Server Error");
+        res.status(500).json({message : "Server Error"});
     }
 }
+
+//Delete Product
+module.exports.deleteProduct = async (req ,res) => {
+    try {
+        const product = await productModel.findById(req.params.id)
+
+        if(!product){
+            return res.status(404).send("Product not found");
+        }
+
+        await product.deleteOne(); //or await product.remove();
+        res.json({message : "Product removved"});
+        
+    } catch (error) {
+        res.status(500).json({message : "server error"});
+    }
+}
+

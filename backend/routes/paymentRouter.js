@@ -1,24 +1,8 @@
 const express  = require ('express');
 const router = express.Router();
-const {isLoggedIn} = require ('../middlewares/isLoggedIn');
+const {createdOrder , verifyPayment} = require('../controllers/paymentController.js')
 
-router.post('/paymentMethod', isLoggedIn, async (req, res) => {
-    let { paymentMethod } = req.body;
-
-    console.log(paymentMethod);
-
-    // store in session/db if needed
-
-    return res.redirect("/payment/paymentPage");
-});
-
-router.get('/paymentMethod' , isLoggedIn , async(req ,res) => {
-    res.render("paymentMethod")
-})
-
-router.get('/paymentPage',isLoggedIn ,async(req, res) =>{
-    res.render("paymentPage")
-})
-
+router.post('/order', createdOrder);
+router.post('/verify', verifyPayment);
 
 module.exports = router;

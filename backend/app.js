@@ -16,8 +16,9 @@ const usersRouter = require ("./routes/usersRouter");
 const productsRouter = require ("./routes/productsRouter");
 const cartRouter = require ("./routes/cartRouter");
 const ordersRouter = require("./routes/ordersRouter");
-const pageRouter = require("./routes/pageRouter");
-const paymentRouter = require('./routes/paymentRouter')
+// const pageRouter = require("./routes/pageRouter");
+const paymentRouter = require('./routes/paymentRouter');
+const adminRouter = require("./routes/adminRouter");
 
 const db = require('./config/mongoose-connection');
 const { isLoggedIn } = require('./middlewares/isLoggedIn');
@@ -50,9 +51,13 @@ app.use("/users",usersRouter);
 app.use("/products",productsRouter);
 app.use("/cart",isLoggedIn,cartRouter);
 app.use("/orders", ordersRouter);
-app.use("/", pageRouter);
 app.use("/payment" , paymentRouter);
+app.use("/analytics" , adminRouter);
 
+
+// app.get("/", (req, res) => {
+//     res.send("CampusCart Backend is running");
+// });
 
 app.listen(3000,(req,res)=>{                                         //
     console.log("Campus Cart Online")

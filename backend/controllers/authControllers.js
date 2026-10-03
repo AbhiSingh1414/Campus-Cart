@@ -1,6 +1,6 @@
 const userModel = require("../models/user-model");
 const bcrypt = require("bcrypt");
-// const jwt = require("jsonwebtoken");
+const sendEmail = require('../utils/sendEmail')
 const generateToken = require("../utils/generateToken");
 
 module.exports.registerUser = async function (req , res){
@@ -17,7 +17,7 @@ if(user) return res.status(409).send("User already exists");
 
     bcrypt.genSalt(10, function(err,salt){
         bcrypt.hash(password,salt, async function(err ,hash){
-            if (err) return res.send(err.message);
+            if (err) return res.send(err.message); 
             else{
                 let user = await userModel.create({
                     username,
@@ -28,20 +28,25 @@ if(user) return res.status(409).send("User already exists");
                 if(user){
                     const otp = Math.floor(100000 + Math.random()*900000).toString();
 
-                    const message = `Welcome to Campus Cart, ${name} ! Thankyou for regestering with us. We are excited to have you.
+                    const message = `Welcome to Campus Cart, ${username} ! Thankyou for regestering with us. We are excited to have you.
                     Your OTP for Campus Cart regestration is ${otp}`
 
-                    await sendMail(email,'Welcome to Campus Cart. Your OTP for regestration ' , message)
+                    await sendEmail(email,'Welcome to Campus Cart. Your OTP for regestration ' , message);
+
+                    res.status(201).json({
+                        _id  : user.id,
+                        username : user.username,
+                        email : user.email,
+                        role : user.role,
+                        token : generateToken(user)
+                    })
                 }
-                let token = generateToken(user);
-                res.cookie ("token" , token);
-                res.status(201).json({message : 'User registered successfully. Please check ypur email for OTP'})
         };
     })
 })
 }catch(err){
     console.error("Register Error:" , err);
-    res.send(err.message);
+    res.json({message : `Server error` });
 }
 
 };
@@ -56,9 +61,13 @@ module.exports.loginUser = async function (req , res){
         //if exists then compare password
         bcrypt.compare(password,user.password,function (err , result){
             if(result){
-                let token = generateToken(user);
-                res.cookie ("token" , token);
-                res.redirect ("/users/profile");
+                res.json({
+                    _id : user.id,
+                    username : user.username,
+                    email : user.email,
+                    role : user.role,
+                    token : generateToken(user)
+                })
             }
             else{
                 res.send("email or password incorrect")
@@ -67,13 +76,21 @@ module.exports.loginUser = async function (req , res){
     }
     catch(err){
         console.error("Login error:",err);
-        res.send ("email or password incorrect");
+        res.json ({message : `email or password incorrect`});
     }
 };
 
+module.exports.getUsers = async function(req ,res){
+    try{let users = await userModel.find({}).select(-password); //will provide users data except password
+        res.json(users);
+    }catch(error){
+        res.json({message : `Server error`})
+        }
+}
+
 module.exports.logoutUser = function(req ,res){
     let token = res.cookie("token", "");
-    res.redirect ("/users/login")
+    // res.redirect ("/users/login")
 }
     
 
