@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import ProductCard from '../components/ProductCard';
 import '../styles/home.css'
 
@@ -7,21 +6,29 @@ const Home = () => {
 
   const[products,setProducts] = useState([]);
   const[loading,setLoading] = useState(true);
+  const[loadError,setLoadError] = useState(false);
 
   useEffect(()=>{
 
     const fetchProducts = async () => {
       try{
         const res = await fetch('/products');
+        if (!res.ok) {
+          throw new Error(`Products request failed (${res.status})`);
+        }
+
         const data = await res.json();
-        setProducts(data.slice(0,3));
+        const productList = Array.isArray(data) ? data : data.products ?? [];
+        setProducts(productList.slice(0,3));
       }catch(error){
         console.error(error);
+        setLoadError(true);
       }finally{
         setLoading(false);
       }
     };
 
+    fetchProducts();
   },[])
 
   return (
@@ -34,11 +41,15 @@ const Home = () => {
       <h2>Featured Products</h2>
       {loading ? (
         <div>Loading...</div>
+      ):loadError ? (
+        <div>Could not load products. Check that both servers are running.</div>
+      ):products.length === 0 ? (
+        <div>No products are available yet.</div>
       ):(
         <div className="product-grid">
-          {products.map((product)=>{
+          {products.map((product)=>(
             <ProductCard key={product._id} product={product}></ProductCard>
-          })}
+          ))}
         </div>
       )}
     </div>

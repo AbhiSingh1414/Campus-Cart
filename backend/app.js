@@ -38,7 +38,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(session({
-    secret : process.env.SESSION_SECRET || "Secrer1212",
+    secret : process.env.SESSION_SECRET || "Secrert212",
     resave : false,
     saveUninitialized : false,
     cookie: { secure: false }
@@ -64,6 +64,8 @@ app.get("/", (req, res) => {
     res.send("CampusCart Backend is running");
 });
 
-app.listen(3000,(req,res)=>{                                         //
-    console.log("Campus Cart Online")
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Campus Cart API listening at http://localhost:${PORT}`);
 });
