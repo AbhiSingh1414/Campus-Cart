@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import '../styles/product.css'
+import '../Styles/product.css'
 
 const ProductCard = ({product}) => {
   return (

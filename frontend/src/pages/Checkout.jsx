@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 import { AuthContext } from "../context/AuthContext.jsx";
 import { clearCart } from "../redux/cartSlice";
-import "../styles/checkout.css";
+import "../Styles/checkout.css";
 
 const Checkout = () => {
   // Authentication

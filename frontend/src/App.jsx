@@ -14,7 +14,7 @@ import Register from './pages/Register';
 import ProductDetail from './pages/ProductDetail';
 import Shop from './pages/Shop';
 import Profile from './pages/Profile';
-import './styles/global.css';
+import './Styles/global.css';
 import OrderSuccess from './pages/OrderSuccess';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';

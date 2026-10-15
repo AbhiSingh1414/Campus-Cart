@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Link, Navigate, NavLink, Outlet, useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext.jsx';
-import '../styles/admin.css';
+import '../Styles/admin.css';
 
 const authHeaders = (token) => ({ Authorization: `Bearer ${token}` });
 const money = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

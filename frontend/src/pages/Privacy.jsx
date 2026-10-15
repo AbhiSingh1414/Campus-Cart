@@ -1,4 +1,4 @@
-import '../styles/info-pages.css';
+import '../Styles/info-pages.css';
 
 export default function Privacy() {
   return (

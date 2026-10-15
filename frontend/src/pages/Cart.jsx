@@ -5,7 +5,7 @@ import {
   selectCartSubtotal,
   setCartItemQuantity,
 } from '../redux/cartSlice';
-import '../styles/cart.css';
+import '../Styles/cart.css';
 
 const Cart = () => {
   const items = useSelector((state) => state.cart.cartItems);
