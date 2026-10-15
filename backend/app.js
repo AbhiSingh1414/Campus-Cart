@@ -28,7 +28,7 @@ app.use(cors(
         origin: [
             'http://localhost:3000',
             'http://127.0.0.1:3000',
-            process.env.FRONNTEND_URL
+            process.env.FRONTEND_URL
         ],
         credentials: true
     }
@@ -62,10 +62,11 @@ app.use("/analytics" , adminRouter);
 
 
 if(process.env.NODE_ENV ==='production') {
-    app.use(express.static(path.join(__dirname,'../fronted/build')));
+    const frontendDist = path.join(__dirname, '../frontend/dist');
+    app.use(express.static(frontendDist));
 
-    app.get('*', (req,res) => {
-        res.sendFile(path.resolve(__dirname,'../frontend/build/index.html'));
+    app.get('/{*splat}', (req,res) => {
+        res.sendFile(path.join(frontendDist, 'index.html'));
     });
 }else{
     app.get('/', (req,res) => {

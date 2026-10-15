@@ -61,12 +61,13 @@ CLOUDINARY_API_KEY=your-cloudinary-api-key
 CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 RAZORPAY_KEY_ID=your-razorpay-key-id
 RAZORPAY_KEY_SECRET=your-razorpay-key-secret
-FRONNTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3000
+MONGODB_URI=your-mongodb-connection-string
 ```
 
-The current CORS configuration reads `FRONNTEND_URL` with that spelling. The local development URLs are also allowed directly.
+The local development URLs are also allowed directly.
 
-The MongoDB connection is currently read from `backend/config/development.json` under `MONGODB_URI`. Set this to your own connection string. Never publish database credentials, API keys, email passwords, or `.env` files.
+Set `MONGODB_URI` to your own database connection string. For local development only, the app falls back to `backend/config/development.json` when the variable is not set. Production must set `MONGODB_URI` in the host's secret environment settings. Never publish database credentials, API keys, email passwords, or `.env` files.
 
 ## API routes
 
@@ -104,7 +105,7 @@ The backend start command is:
 npm start
 ```
 
-Before deploying the frontend and backend as one Render web service, align the backend production static-file path with Vite's `frontend/dist` output. The production MongoDB configuration must also be provided; the repository currently includes a development configuration only. Set secrets in Render's Environment settings, and deploy the latest commit from the intended branch.
+The backend serves the built frontend from `frontend/dist`. Add `MONGODB_URI` and the other backend secrets in Render's Environment settings, then set the start command to `npm start`. Deploy the latest commit from the intended branch.
 
 ## Security
 
