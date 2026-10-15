@@ -4,13 +4,13 @@ const cloudinary = require('../config/cloudinary');
 //Create Product
 module.exports.createProduct = async function (req , res){
     try{
-        let {productname,price,discount,description,category,stock} = req.body;
-        let imageUrl = " ";
+        let {productname,price,discount,description,category,stock,imageUrl = ''} = req.body;
 
         if (req.file) {
             const result = await cloudinary.uploader.upload(req.file.path);
             imageUrl = result.secure_url;
         }
+        if (!imageUrl) return res.status(400).json({ message: "Please upload a product image." });
         let product = await productModel.create({
             productname,
             price,
@@ -69,12 +69,13 @@ module.exports.updateProduct = async (req,res) => {
         }
 
         //Update Product
-        product.productname = productname || product.productname;
-        product.price = price || product.price;
-        product.description = description || product.description;
-        product.discount = discount || product.discount;
-        product.stock = stock || product.stock;
-        product.category = category || product.category;
+        if (productname !== undefined) product.productname = productname;
+        if (price !== undefined) product.price = price;
+        if (description !== undefined) product.description = description;
+        if (discount !== undefined) product.discount = discount;
+        if (stock !== undefined) product.stock = stock;
+        if (category !== undefined) product.category = category;
+        if (req.body.imageUrl !== undefined) product.imageUrl = req.body.imageUrl;
         if(req.file){
             const result = await cloudinary.uploader.upload(req.file.path);
             product.imageUrl = result.secure_url;

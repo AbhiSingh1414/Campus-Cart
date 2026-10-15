@@ -10,13 +10,13 @@ module.exports.getAdminStats = async function(req,res){
         
         const orders = await orderModel.find({});
 
-        const totalRevenueData = orders.reduce((acc,order) => acc+order.totalAmout, 0);
+        const totalRevenue = orders.reduce((acc,order) => acc + Number(order.totalAmount || 0), 0);
 
         res.json({
             totalUsers,
             totalOrders,
             totalProducts,
-            totalRevene : totalRevenueData
+            totalRevenue
         });
 
     } catch (error) {

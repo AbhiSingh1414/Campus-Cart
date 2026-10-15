@@ -28,6 +28,7 @@ app.use(cors(
         origin: [
             'http://localhost:3000',
             'http://127.0.0.1:3000',
+            process.env.FRONNTEND_URL
         ],
         credentials: true
     }
@@ -60,9 +61,17 @@ app.use("/payment" , paymentRouter);
 app.use("/analytics" , adminRouter);
 
 
-app.get("/", (req, res) => {
-    res.send("CampusCart Backend is running");
-});
+if(process.env.NODE_ENV ==='production') {
+    app.use(express.static(path.join(__dirname,'../fronted/build')));
+
+    app.get('*', (req,res) => {
+        res.sendFile(path.resolve(__dirname,'../frontend/build/index.html'));
+    });
+}else{
+    app.get('/', (req,res) => {
+        res.send('Campus Cart API is running in Developmennt mode...');
+    })
+}
 
 const PORT = process.env.PORT || 5000;
 

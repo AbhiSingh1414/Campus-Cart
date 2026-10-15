@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link , useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
-import {AuthContext} from '../context/AuthContext';
+import {AuthContext} from '../context/AuthContext.jsx';
 import logo from '../assets/logo.png'
 import '../Styles/navbar.css';
 
@@ -31,7 +31,7 @@ const Navbar = () => {
             <li><Link to="/cart">Cart ({cartItems.length})</Link></li>
             {user ? (
               <>
-              <li><Link to="/profile">Hi, {user.name}</Link></li>
+              <li><Link to="/profile">Hi, {user.username || user.name}</Link></li>
               {user.role === 'admin' && <li><Link to='/admin'>Admin</Link></li>}
               <li><button onClick={handleLogout}className='handle-logout'>Logout</button></li>
 

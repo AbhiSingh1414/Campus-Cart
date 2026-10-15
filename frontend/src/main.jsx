@@ -3,7 +3,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { Provider } from 'react-redux'
 import App from './App.jsx'
 import { store } from './redux/store.js'
-import './Styles/global.css'
+import './styles/global.css'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>

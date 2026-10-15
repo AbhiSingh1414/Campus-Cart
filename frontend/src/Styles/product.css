@@ -26,7 +26,7 @@
 }
 
 .product-card:hover .product-image {
-  transform: scale(1.035);
+  transform: none;
 }
 
 .product-info {

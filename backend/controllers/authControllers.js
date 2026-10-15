@@ -10,7 +10,7 @@ try{
 
 //Check if user exists
 let user = await userModel.findOne({email});
-if(user) return res.status(409).send("User already exists");
+if(user) return res.status(409).json({ message: "User already exists" });
 
 //If doesn't, Create a user and store the password in hash   (use bcrypt)
 //use the generated hash to generate  the password
@@ -54,29 +54,32 @@ if(user) return res.status(409).send("User already exists");
 module.exports.loginUser = async function (req , res){
     try{
         let {email , password} = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required.' });
+        }
+
         //Find the user
         let user = await userModel.findOne({email});
-        //if doesn't exist (msg)
-        if(!user) return res.status(404).send("User doesn't exist")
-        //if exists then compare password
-        bcrypt.compare(password,user.password,function (err , result){
-            if(result){
-                res.json({
-                    _id : user.id,
-                    username : user.username,
-                    email : user.email,
-                    role : user.role,
-                    token : generateToken(user)
-                })
-            }
-            else{
-                res.send("email or password incorrect")
-            }
-        })     
+        if (!user) {
+            return res.status(401).json({ message: 'Email or password is incorrect.' });
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.password);
+        if (!passwordMatches) {
+            return res.status(401).json({ message: 'Email or password is incorrect.' });
+        }
+
+        return res.status(200).json({
+            _id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user),
+        });
     }
     catch(err){
         console.error("Login error:",err);
-        res.json ({message : `email or password incorrect`});
+        return res.status(500).json({ message: 'Unable to log in right now.' });
     }
 };
 

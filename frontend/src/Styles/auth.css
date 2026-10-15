@@ -1,0 +1,110 @@
+.auth-container {
+  display: grid;
+  min-height: 65vh;
+  place-items: center;
+  padding: 48px 20px 72px;
+}
+
+.auth-form {
+  display: flex;
+  width: min(100%, 440px);
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid var(--color-border, #2b2a2e);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #19191d, #111113);
+  box-shadow: 0 20px 55px rgb(0 0 0 / 32%);
+}
+
+.auth-form h2 {
+  margin: 0;
+  color: var(--color-text, #f5f3f2);
+  font-size: clamp(1.6rem, 4vw, 2rem);
+}
+
+.auth-subtitle {
+  margin: -8px 0 4px;
+  color: var(--color-muted, #a2a0a3);
+}
+
+.auth-error {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid rgb(255 100 110 / 30%);
+  border-radius: 7px;
+  background: rgb(229 9 20 / 9%);
+  color: #ff9a9f;
+  font-size: .9rem;
+}
+
+.auth-form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #39373c;
+  border-radius: 7px;
+  background: #0e0e10;
+  color: var(--color-text, #f5f3f2);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.auth-form input::placeholder {
+  color: #89858a;
+}
+
+.auth-form input:focus {
+  border-color: #e50914;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(229 9 20 / 18%);
+}
+
+.auth-form .btn {
+  min-height: 48px;
+  margin-top: 4px;
+  border: 1px solid #bc1019;
+  border-radius: 7px;
+  background: #b20d16;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.auth-form .btn:hover {
+  transform: translateY(-1px);
+  background: #d20d18;
+}
+
+.auth-form .btn:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.auth-form > p:last-child {
+  margin: 4px 0 0;
+  color: var(--color-muted, #a2a0a3);
+  text-align: center;
+}
+
+.auth-form a {
+  color: #ff626a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-form a:hover {
+  color: #ff9297;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .auth-container {
+    min-height: 60vh;
+    padding: 32px 16px 52px;
+  }
+
+  .auth-form {
+    gap: 14px;
+  }
+}

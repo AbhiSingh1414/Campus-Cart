@@ -19,7 +19,7 @@ const Home = () => {
 
         const data = await res.json();
         const productList = Array.isArray(data) ? data : data.products ?? [];
-        setProducts(productList.slice(0,3));
+        setProducts(productList.slice(0,));
       }catch(error){
         console.error(error);
         setLoadError(true);
