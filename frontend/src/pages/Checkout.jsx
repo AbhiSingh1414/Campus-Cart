@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -20,6 +20,7 @@ const Checkout = () => {
   // Component state
   const [address, setAddress] = useState({
     fullName: "",
+    phone: "",
     street: "",
     city: "",
     postalCode: "",
@@ -27,11 +28,46 @@ const Checkout = () => {
   });
 
   const [error, setError] = useState("");
+  const [latestProducts, setLatestProducts] = useState({});
+  const [productsLoading, setProductsLoading] = useState(cartItems.length > 0);
+
+  // Persisted carts can predate discount support. Load current product prices
+  // so checkout uses the same price and discount shown on the product page.
+  useEffect(() => {
+    let active = true;
+    setProductsLoading(cartItems.length > 0);
+    const loadProducts = async () => {
+      const products = await Promise.all(cartItems.map(async (item) => {
+        const id = item._id ?? item.id ?? item.productId?._id ?? item.productId;
+        if (!id) return null;
+        try {
+          const response = await fetch(`/products/${id}`);
+          if (!response.ok) return null;
+          const product = await response.json();
+          return product?._id ? [String(product._id), product] : null;
+        } catch {
+          return null;
+        }
+      }));
+      if (active) {
+        setLatestProducts(Object.fromEntries(products.filter(Boolean)));
+        setProductsLoading(false);
+      }
+    };
+    loadProducts();
+    return () => { active = false; };
+  }, [cartItems]);
 
   // Calculate total price
+  const getDiscountedPrice = (item) => {
+    const id = item._id ?? item.id ?? item.productId?._id ?? item.productId;
+    const product = latestProducts[String(id)] ?? item;
+    const price = Number(product.price) || 0;
+    const discount = Math.min(Math.max(Number(product.discount) || 0, 0), 100);
+    return price * (1 - discount / 100);
+  };
   const totalPrice = cartItems.reduce(
-    (total, item) =>
-      total + Number(item.price || 0) * Number(item.quantity ?? item.qty ?? 1),
+    (total, item) => total + getDiscountedPrice(item) * Number(item.quantity ?? item.qty ?? 1),
     0
   );
 
@@ -71,9 +107,9 @@ const Checkout = () => {
       },
       body: JSON.stringify({
         items: cartItems.map((item) => ({
-          productId: item._id ?? item.id ?? item.productId,
+          productId: item._id ?? item.id ?? item.productId?._id ?? item.productId,
           quantity: Number(item.quantity ?? item.qty ?? 1),
-          price: Number(item.price),
+          price: getDiscountedPrice(item),
         })),
         totalAmount: totalPrice,
         address,
@@ -161,6 +197,7 @@ const Checkout = () => {
         prefill: {
           name: address.fullName,
           email: user.email || "",
+          contact: address.phone,
         },
 
         theme: {
@@ -259,6 +296,19 @@ const Checkout = () => {
             />
           </label>
 
+          <label>
+            Phone number
+            <input
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              inputMode="tel"
+              value={address.phone}
+              onChange={updateField}
+              required
+            />
+          </label>
+
           <div className="checkout-field-row">
             <label>
               City
@@ -303,7 +353,7 @@ const Checkout = () => {
           <button
             className="checkout-button checkout-primary"
             type="submit"
-            disabled={!user?.token || cartItems.length === 0}
+            disabled={!user?.token || cartItems.length === 0 || productsLoading}
           >
             Pay now
           </button>
@@ -314,8 +364,11 @@ const Checkout = () => {
 
           <ul className="checkout-items">
             {cartItems.map((item) => {
-              const id = item._id ?? item.id ?? item.productId;
+              const id = item._id ?? item.id ?? item.productId?._id ?? item.productId;
               const quantity = Number(item.quantity ?? item.qty ?? 1);
+              const listedPrice = Number((latestProducts[String(id)] ?? item).price) || 0;
+              const salePrice = getDiscountedPrice(item);
+              const hasDiscount = salePrice < listedPrice;
 
               return (
                 <li key={id}>
@@ -325,7 +378,8 @@ const Checkout = () => {
                   </span>
 
                   <strong>
-                    {currency(Number(item.price || 0) * quantity)}
+                    {hasDiscount && <del>{currency(listedPrice * quantity)}</del>}{" "}
+                    {currency(salePrice * quantity)}
                   </strong>
                 </li>
               );

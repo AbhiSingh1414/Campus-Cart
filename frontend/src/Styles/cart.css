@@ -87,6 +87,23 @@
   font-size: 0.9rem;
 }
 
+.cart-item-unit-price del,
+.cart-item-line-total del {
+  margin-right: 5px;
+  color: var(--color-muted, #a2a0a3);
+  font-size: .88em;
+  font-weight: 400;
+}
+
+.cart-item-unit-price strong {
+  color: #fff;
+}
+
+.cart-item-discount {
+  color: #ff777d;
+  font-size: .82rem;
+}
+
 .cart-item-controls {
   display: flex;
   align-items: end;
